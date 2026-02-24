@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Predictor de Nivel de Estrés</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f0f2f5;
+        color: #333;
+        padding: 2rem 1rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        font-size: 1.8rem;
+        color: #2c3e50;
+      }
+
+      header p {
+        color: #666;
+        margin-top: 0.4rem;
+        font-size: 0.95rem;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .card h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .psicologico h2 {
+        color: #9b59b6;
+        border-color: #9b59b6;
+      }
+      .fisiologico h2 {
+        color: #e74c3c;
+        border-color: #e74c3c;
+      }
+      .ambiental h2 {
+        color: #27ae60;
+        border-color: #27ae60;
+      }
+      .academico h2 {
+        color: #2980b9;
+        border-color: #2980b9;
+      }
+      .social h2 {
+        color: #e67e22;
+        border-color: #e67e22;
+      }
+
+      .field {
+        margin-bottom: 1.1rem;
+      }
+
+      .field label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.88rem;
+        margin-bottom: 0.3rem;
+        color: #444;
+      }
+
+      .field label span.val {
+        font-weight: 700;
+        font-size: 1rem;
+        min-width: 2rem;
+        text-align: right;
+        color: #2c3e50;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: #3498db;
+        cursor: pointer;
+      }
+
+      .checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.88rem;
+        color: #444;
+      }
+
+      .checkbox-field input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #9b59b6;
+      }
+
+      .hint {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.15rem;
+      }
+
+      button[type="submit"] {
+        display: block;
+        width: 100%;
+        max-width: 750px;
+        margin: 0 auto 1.5rem;
+        padding: 0.9rem;
+        background: #2c3e50;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      button[type="submit"]:hover {
+        background: #1a252f;
+      }
+      button[type="submit"]:disabled {
+        background: #aaa;
+        cursor: not-allowed;
+      }
+
+      #resultado {
+        max-width: 750px;
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        display: none;
+      }
+
+      #resultado h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: #555;
+      }
+      #resultado .nivel {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+      }
+      #resultado .prob {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .res-0 {
+        background: #d5f5e3;
+        color: #1e8449;
+        border: 2px solid #2ecc71;
+      }
+      .res-1 {
+        background: #fef9e7;
+        color: #b7770d;
+        border: 2px solid #f39c12;
+      }
+      .res-2 {
+        background: #fadbd8;
+        color: #922b21;
+        border: 2px solid #e74c3c;
+      }
+
+      .error-msg {
+        background: #fadbd8;
+        border: 2px solid #e74c3c;
+        color: #922b21;
+        padding: 1rem;
+        border-radius: 10px;
+        max-width: 750px;
+        margin: 0 auto;
+        text-align: center;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Predictor de Nivel de Estrés Estudiantil</h1>
+      <p>
+        Responde las siguientes preguntas para conocer tu nivel de estrés
+        estimado.
+      </p>
+    </header>
+
+    <form id="form">
+      <!-- PSICOLÓGICO -->
+      <div class="card psicologico">
+        <h2>Psicológico</h2>
+
+        <div class="field">
+          <label
+            >Nivel de ansiedad
+            <span class="val" id="v-anxiety_level">10</span></label
+          >
+          <input
+            type="range"
+            id="anxiety_level"
+            name="anxiety_level"
+            min="0"
+            max="21"
+            value="10"
+          />
+          <p class="hint">
+            0 = Sin ansiedad &nbsp;·&nbsp; 21 = Ansiedad extrema
+          </p>
+        </div>
+
+        <div class="field">
+          <label
+            >Autoestima <span class="val" id="v-self_esteem">15</span></label
+          >
+          <input
+            type="range"
+            id="self_esteem"
+            name="self_esteem"
+            min="0"
+            max="30"
+            value="15"
+          />
+          <p class="hint">0 = Muy baja &nbsp;·&nbsp; 30 = Muy alta</p>
+        </div>
+
+        <div class="field">
+          <div class="checkbox-field">
+            <input
+              type="checkbox"
+              id="mental_health_history"
+              name="mental_health_history"
+            />
+            <label for="mental_health_history"
+              >Historial de problemas de salud mental</label
+            >
+          </div>
+        </div>
+
+        <div class="field">
+          <label
+            >Nivel de depresión
+            <span class="val" id="v-depression">10</span></label
+          >
+          <input
+            type="range"
+            id="depression"
+            name="depression"
+            min="0"
+            max="27"
+            value="10"
+          />
+          <p class="hint">
+            0 = Sin depresión &nbsp;·&nbsp; 27 = Depresión severa
+          </p>
+        </div>
+      </div>
+
+      <!-- FISIOLÓGICO -->
+      <div class="card fisiologico">
+        <h2>Fisiológico</h2>
+
+        <div class="field">
+          <label
+            >Frecuencia de dolores de cabeza
+            <span class="val" id="v-headache">2</span></label
+          >
+          <input
+            type="range"
+            id="headache"
+            name="headache"
+            min="0"
+            max="5"
+            value="2"
+          />
+          <p class="hint">0 = Nunca &nbsp;·&nbsp; 5 = Siempre</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Presión arterial
+            <span class="val" id="v-blood_pressure">2</span></label
+          >
+          <input
+            type="range"
+            id="blood_pressure"
+            name="blood_pressure"
+            min="1"
+            max="3"
+            value="2"
+          />
+          <p class="hint">
+            1 = Normal &nbsp;·&nbsp; 2 = Elevada &nbsp;·&nbsp; 3 = Alta
+          </p>
+        </div>
+
+        <div class="field">
+          <label
+            >Calidad del sueño
+            <span class="val" id="v-sleep_quality">3</span></label
+          >
+          <input
+            type="range"
+            id="sleep_quality"
+            name="sleep_quality"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy mala &nbsp;·&nbsp; 5 = Excelente</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Problemas respiratorios
+            <span class="val" id="v-breathing_problem">1</span></label
+          >
+          <input
+            type="range"
+            id="breathing_problem"
+            name="breathing_problem"
+            min="0"
+            max="5"
+            value="1"
+          />
+          <p class="hint">0 = Ninguno &nbsp;·&nbsp; 5 = Severos</p>
+        </div>
+      </div>
+
+      <!-- AMBIENTAL -->
+      <div class="card ambiental">
+        <h2>Ambiental</h2>
+
+        <div class="field">
+          <label
+            >Nivel de ruido en tu entorno
+            <span class="val" id="v-noise_level">2</span></label
+          >
+          <input
+            type="range"
+            id="noise_level"
+            name="noise_level"
+            min="0"
+            max="5"
+            value="2"
+          />
+          <p class="hint">0 = Silencioso &nbsp;·&nbsp; 5 = Muy ruidoso</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Condiciones de vivienda
+            <span class="val" id="v-living_conditions">3</span></label
+          >
+          <input
+            type="range"
+            id="living_conditions"
+            name="living_conditions"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy malas &nbsp;·&nbsp; 5 = Excelentes</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Sensación de seguridad
+            <span class="val" id="v-safety">3</span></label
+          >
+          <input
+            type="range"
+            id="safety"
+            name="safety"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy inseguro &nbsp;·&nbsp; 5 = Muy seguro</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Acceso a necesidades básicas
+            <span class="val" id="v-basic_needs">3</span></label
+          >
+          <input
+            type="range"
+            id="basic_needs"
+            name="basic_needs"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Sin acceso &nbsp;·&nbsp; 5 = Acceso completo</p>
+        </div>
+      </div>
+
+      <!-- ACADÉMICO -->
+      <div class="card academico">
+        <h2>Académico</h2>
+
+        <div class="field">
+          <label
+            >Rendimiento académico
+            <span class="val" id="v-academic_performance">3</span></label
+          >
+          <input
+            type="range"
+            id="academic_performance"
+            name="academic_performance"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy bajo &nbsp;·&nbsp; 5 = Excelente</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Carga de estudio
+            <span class="val" id="v-study_load">3</span></label
+          >
+          <input
+            type="range"
+            id="study_load"
+            name="study_load"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy ligera &nbsp;·&nbsp; 5 = Muy pesada</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Relación maestro-alumno
+            <span class="val" id="v-teacher_student_relationship"
+              >3</span
+            ></label
+          >
+          <input
+            type="range"
+            id="teacher_student_relationship"
+            name="teacher_student_relationship"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Muy mala &nbsp;·&nbsp; 5 = Muy buena</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Preocupación por el futuro laboral
+            <span class="val" id="v-future_career_concerns">3</span></label
+          >
+          <input
+            type="range"
+            id="future_career_concerns"
+            name="future_career_concerns"
+            min="0"
+            max="5"
+            value="3"
+          />
+          <p class="hint">0 = Ninguna &nbsp;·&nbsp; 5 = Muy alta</p>
+        </div>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="card social">
+        <h2>Social</h2>
+
+        <div class="field">
+          <label
+            >Apoyo social
+            <span class="val" id="v-social_support">2</span></label
+          >
+          <input
+            type="range"
+            id="social_support"
+            name="social_support"
+            min="0"
+            max="3"
+            value="2"
+          />
+          <p class="hint">0 = Sin apoyo &nbsp;·&nbsp; 3 = Mucho apoyo</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Presión de pares
+            <span class="val" id="v-peer_pressure">2</span></label
+          >
+          <input
+            type="range"
+            id="peer_pressure"
+            name="peer_pressure"
+            min="0"
+            max="5"
+            value="2"
+          />
+          <p class="hint">0 = Ninguna &nbsp;·&nbsp; 5 = Muy alta</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Actividades extracurriculares
+            <span class="val" id="v-extracurricular_activities">2</span></label
+          >
+          <input
+            type="range"
+            id="extracurricular_activities"
+            name="extracurricular_activities"
+            min="0"
+            max="5"
+            value="2"
+          />
+          <p class="hint">0 = Ninguna &nbsp;·&nbsp; 5 = Muchas</p>
+        </div>
+
+        <div class="field">
+          <label
+            >Experiencias de bullying
+            <span class="val" id="v-bullying">1</span></label
+          >
+          <input
+            type="range"
+            id="bullying"
+            name="bullying"
+            min="0"
+            max="5"
+            value="1"
+          />
+          <p class="hint">0 = Ninguna &nbsp;·&nbsp; 5 = Frecuentes</p>
+        </div>
+      </div>
+
+      <button type="submit" id="btn-submit">Predecir nivel de estrés</button>
+    </form>
+
+    <div id="resultado">
+      <h3>Tu nivel de estrés estimado es:</h3>
+      <div class="nivel" id="res-nivel"></div>
+      <div class="prob" id="res-prob"></div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <script>
+      // ─── CONFIGURACIÓN ───────────────────────────────────────────────────────────
+      const API_URL = "http://localhost:8000/predict";
+      // ─────────────────────────────────────────────────────────────────────────────
+
+      const CLASS_NAMES = { 0: "Sin Estrés", 1: "Euestrés", 2: "Distrés" };
+      const CLASS_CSS = { 0: "res-0", 1: "res-1", 2: "res-2" };
+
+      // Actualizar el valor mostrado al mover cada slider
+      document.querySelectorAll("input[type='range']").forEach((slider) => {
+        const display = document.getElementById("v-" + slider.id);
+        if (display) {
+          slider.addEventListener(
+            "input",
+            () => (display.textContent = slider.value),
+          );
+        }
+      });
+
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const btn = document.getElementById("btn-submit");
+        const resBox = document.getElementById("resultado");
+        const errorBox = document.getElementById("error-msg");
+
+        btn.disabled = true;
+        btn.textContent = "Analizando...";
+        resBox.style.display = "none";
+        errorBox.style.display = "none";
+
+        // Construir el payload con los 20 features
+        const payload = {
+          anxiety_level: parseInt(
+            document.getElementById("anxiety_level").value,
+          ),
+          self_esteem: parseInt(document.getElementById("self_esteem").value),
+          mental_health_history: document.getElementById(
+            "mental_health_history",
+          ).checked
+            ? 1
+            : 0,
+          depression: parseInt(document.getElementById("depression").value),
+          headache: parseInt(document.getElementById("headache").value),
+          blood_pressure: parseInt(
+            document.getElementById("blood_pressure").value,
+          ),
+          sleep_quality: parseInt(
+            document.getElementById("sleep_quality").value,
+          ),
+          breathing_problem: parseInt(
+            document.getElementById("breathing_problem").value,
+          ),
+          noise_level: parseInt(document.getElementById("noise_level").value),
+          living_conditions: parseInt(
+            document.getElementById("living_conditions").value,
+          ),
+          safety: parseInt(document.getElementById("safety").value),
+          basic_needs: parseInt(document.getElementById("basic_needs").value),
+          academic_performance: parseInt(
+            document.getElementById("academic_performance").value,
+          ),
+          study_load: parseInt(document.getElementById("study_load").value),
+          teacher_student_relationship: parseInt(
+            document.getElementById("teacher_student_relationship").value,
+          ),
+          future_career_concerns: parseInt(
+            document.getElementById("future_career_concerns").value,
+          ),
+          social_support: parseInt(
+            document.getElementById("social_support").value,
+          ),
+          peer_pressure: parseInt(
+            document.getElementById("peer_pressure").value,
+          ),
+          extracurricular_activities: parseInt(
+            document.getElementById("extracurricular_activities").value,
+          ),
+          bullying: parseInt(document.getElementById("bullying").value),
+        };
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok)
+            throw new Error(`Error del servidor: ${response.status}`);
+
+          const data = await response.json();
+
+          // Se espera: { "prediction": 0 | 1 | 2, "probabilities": [p0, p1, p2] }
+          const pred = data.prediction;
+          const probs = data.probabilities;
+
+          resBox.className = `card ${CLASS_CSS[pred]}`;
+          document.getElementById("res-nivel").textContent = CLASS_NAMES[pred];
+
+          if (probs) {
+            const pct = probs.map((p) => (p * 100).toFixed(1) + "%");
+            document.getElementById("res-prob").textContent =
+              `Sin Estrés: ${pct[0]} · Euestrés: ${pct[1]} · Distrés: ${pct[2]}`;
+          } else {
+            document.getElementById("res-prob").textContent = "";
+          }
+
+          resBox.style.display = "block";
+          resBox.scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+          errorBox.textContent = `No se pudo conectar con la API. Verifica que esté corriendo.\n(${err.message})`;
+          errorBox.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Predecir nivel de estrés";
+        }
+      });
+    </script>
+  </body>
+</html>
