@@ -13,7 +13,7 @@ class StressFeatures(BaseModel):
     living_conditions: int = Field(..., ge=0, le=5)
     safety: int = Field(..., ge=0, le=5)
     basic_needs: int = Field(..., ge=0, le=5)
-    academic_performace: int = Field(..., ge=0, le=5)
+    academic_performance: int = Field(..., ge=0, le=5)
     study_load: int = Field(..., ge=0, le=5)
     teacher_student_relationship: int = Field(..., ge=0, le=5)
     future_career_concerns: int = Field(..., ge=0, le=5)

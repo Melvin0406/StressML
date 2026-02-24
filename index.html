@@ -604,51 +604,25 @@
 
         // Construir el payload con los 20 features
         const payload = {
-          anxiety_level: parseInt(
-            document.getElementById("anxiety_level").value,
-          ),
+          anxiety_level: parseInt(document.getElementById("anxiety_level").value),
           self_esteem: parseInt(document.getElementById("self_esteem").value),
-          mental_health_history: document.getElementById(
-            "mental_health_history",
-          ).checked
-            ? 1
-            : 0,
+          mental_health_history: document.getElementById("mental_health_history").checked,
           depression: parseInt(document.getElementById("depression").value),
           headache: parseInt(document.getElementById("headache").value),
-          blood_pressure: parseInt(
-            document.getElementById("blood_pressure").value,
-          ),
-          sleep_quality: parseInt(
-            document.getElementById("sleep_quality").value,
-          ),
-          breathing_problem: parseInt(
-            document.getElementById("breathing_problem").value,
-          ),
+          blood_pressure: parseInt(document.getElementById("blood_pressure").value),
+          sleep_quality: parseInt(document.getElementById("sleep_quality").value),
+          breathing_problem: parseInt(document.getElementById("breathing_problem").value),
           noise_level: parseInt(document.getElementById("noise_level").value),
-          living_conditions: parseInt(
-            document.getElementById("living_conditions").value,
-          ),
+          living_conditions: parseInt(document.getElementById("living_conditions").value),
           safety: parseInt(document.getElementById("safety").value),
           basic_needs: parseInt(document.getElementById("basic_needs").value),
-          academic_performance: parseInt(
-            document.getElementById("academic_performance").value,
-          ),
+          academic_performance: parseInt(document.getElementById("academic_performance").value),
           study_load: parseInt(document.getElementById("study_load").value),
-          teacher_student_relationship: parseInt(
-            document.getElementById("teacher_student_relationship").value,
-          ),
-          future_career_concerns: parseInt(
-            document.getElementById("future_career_concerns").value,
-          ),
-          social_support: parseInt(
-            document.getElementById("social_support").value,
-          ),
-          peer_pressure: parseInt(
-            document.getElementById("peer_pressure").value,
-          ),
-          extracurricular_activities: parseInt(
-            document.getElementById("extracurricular_activities").value,
-          ),
+          teacher_student_relationship: parseInt(document.getElementById("teacher_student_relationship").value),
+          future_career_concerns: parseInt(document.getElementById("future_career_concerns").value),
+          social_support: parseInt(document.getElementById("social_support").value),
+          peer_pressure: parseInt(document.getElementById("peer_pressure").value),
+          extracurricular_activities: parseInt(document.getElementById("extracurricular_activities").value),
           bullying: parseInt(document.getElementById("bullying").value),
         };
 
@@ -664,20 +638,15 @@
 
           const data = await response.json();
 
-          // Se espera: { "prediction": 0 | 1 | 2, "probabilities": [p0, p1, p2] }
+          // La API devuelve: { "prediction": 0|1|2, "stress_level": str, "confidence": float }
           const pred = data.prediction;
-          const probs = data.probabilities;
 
           resBox.className = `card ${CLASS_CSS[pred]}`;
-          document.getElementById("res-nivel").textContent = CLASS_NAMES[pred];
-
-          if (probs) {
-            const pct = probs.map((p) => (p * 100).toFixed(1) + "%");
-            document.getElementById("res-prob").textContent =
-              `Sin Estrés: ${pct[0]} · Euestrés: ${pct[1]} · Distrés: ${pct[2]}`;
-          } else {
-            document.getElementById("res-prob").textContent = "";
-          }
+          document.getElementById("res-nivel").textContent = data.stress_level;
+          document.getElementById("res-prob").textContent =
+            data.confidence != null
+              ? `Confianza: ${(data.confidence * 100).toFixed(1)}%`
+              : "";
 
           resBox.style.display = "block";
           resBox.scrollIntoView({ behavior: "smooth" });
