@@ -1,2 +1,3 @@
 # Modelo entrenado
 *.joblib
+*.pyc
